@@ -7,7 +7,7 @@ Arnoldin Golden Six -treeniohjelma iPhonelle. Toimii täysin offline-tilassa ja 
 ## 📱 Asennus iPhoneen (2 min)
 
 1. **Avaa Safari** iPhonessa *(ei Chrome tai Firefox!)*
-2. Mene appin osoitteeseen
+2. Mene appin osoitteeseen: **https://joel-korpela.github.io/golden-six-app/**
 3. Paina **Jaa-painike** (neliö, jossa ylöspäin osoittava nuoli) ↑
 4. Selaa alaspäin ja valitse **"Lisää Koti-valikkoon"**
 5. Paina **"Lisää"** oikeassa yläkulmassa
@@ -56,6 +56,20 @@ Arnoldin Golden Six -treeniohjelma iPhonelle. Toimii täysin offline-tilassa ja 
 Voit palauttaa datan milloin tahansa "Palauta varmuuskopiosta" -napilla.
 
 > ⚠️ **Tärkeää:** Ota varmuuskopio ennen puhelimen vaihtoa tai Safarin välimuistin tyhjennystä!
+
+---
+
+## 🌐 GitHub Pages -käyttöönotto (kertaluonteinen)
+
+Jotta appin osoite toimii, GitHub Pages täytyy ottaa käyttöön repositoriossa:
+
+1. Mene repositorioon GitHubissa
+2. Avaa **Settings** (yläpalkin oikea reuna)
+3. Selaa vasemmasta valikosta kohtaan **Pages**
+4. Valitse **Source**: `Deploy from a branch`
+5. Valitse **Branch**: `main` ja hakemistoksi `/ (root)`
+6. Paina **Save**
+7. Odota noin minuutti – sivu on sitten saatavilla osoitteessa **https://joel-korpela.github.io/golden-six-app/**
 
 ---
 
