@@ -59,6 +59,20 @@ Voit palauttaa datan milloin tahansa "Palauta varmuuskopiosta" -napilla.
 
 ---
 
+## 🌐 GitHub Pages -käyttöönotto (kertaluonteinen)
+
+Jotta appin osoite toimii, GitHub Pages täytyy ottaa käyttöön repositoriossa:
+
+1. Mene repositorioon GitHubissa
+2. Avaa **Settings** (yläpalkin oikea reuna)
+3. Selaa vasemmasta valikosta kohtaan **Pages**
+4. Valitse **Source**: `Deploy from a branch`
+5. Valitse **Branch**: `main` ja hakemistoksi `/ (root)`
+6. Paina **Save**
+7. Odota noin minuutti – sivu on sitten saatavilla osoitteessa **https://joel-korpela.github.io/golden-six-app/**
+
+---
+
 ## 🛠️ Tekniset tiedot
 
 - Yksittäinen `index.html`-tiedosto – ei ulkoisia riippuvuuksia
