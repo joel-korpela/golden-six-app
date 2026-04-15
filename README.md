@@ -17,19 +17,29 @@ Arnoldin Golden Six -treeniohjelma iPhonelle. Toimii täysin offline-tilassa ja 
 
 ## ✅ Ominaisuudet
 
-- **Arnold's Golden Six** -ohjelma (fullbody, 3 × viikossa)
-  - Takakyykky – 4 × 10
-  - Penkkipunnerrus – 3 × 10
-  - Leuanveto – 3 × max
-  - Pystypunnerrus (niskan takaa) – 4 × 10
-  - Hauiskääntö tangolla – 3 × 10
-  - Istumaannousut – 4 × 20
+- **Arnoldin Golden Six 2020** – fullbody-ohjelma, 3 × viikossa
+- Liikkeet 1, 3 ja 5 vaihtuvat **A/B-vuorottelulla** joka treenissä
+- **Treeni A:**
+  - 1️⃣ Kyykky – 4 × 10 *(pakarat, etureidet)*
+  - 2️⃣ Penkkipunnerrus – 3 × 10 *(rinta, ojentaja, olkapäät)*
+  - 3️⃣ Leuanveto, leveä myötäote – 3 × max *(selkä, hauis)*
+  - 4️⃣ Pystypunnerrus – 3 × 10 + Vipunostot kulmassa 1 × 12 *(olkapäät, takaolkapäät)*
+  - 5️⃣ Hauiskääntö – 2 × 10 + myötäote 1 × 10 *(hauis, brachialis)*
+  - 6️⃣ Vatsalihasliike – 3 × 15–20
+- **Treeni B:**
+  - 1️⃣ Suorin jaloin maastaveto – 4 × 10 *(takareidet, pakarat, selkä)*
+  - 2️⃣ Penkkipunnerrus – 3 × 10
+  - 3️⃣ Kulmasoutu levytangolla – 3 × 10 *(selkä, epäkäs, hauis)*
+  - 4️⃣ Pystypunnerrus – 3 × 10 + Vipunostot kulmassa 1 × 12
+  - 5️⃣ Ranskalainen punnerrus – 3 × 10 *(ojentajat)*
+  - 6️⃣ Vatsalihasliike – 3 × 15–20
 - ✅ Rastita sarjat tehdyksi
 - 📊 Kirjaa paino (kg) ja toistot jokaiselle sarjalle
-- ⏱️ Automaattinen palautusajastin sarjojen välille (2 min / 1 min vatsaliikkeille)
+- ⏱️ Automaattinen palautusajastin (2 min / 1,5 min liikkeelle 5 / 1 min vatsaliikkeille)
 - 🔔 Ajastin hälyttää ääni + värinällä kun palautus on ohi
-- 📅 Treenihistoria päivämäärän kera
-- 📈 Edellisen treenin painot näkyvät viitteenä
+- 📅 Treenihistoria päivämäärän ja A/B-variantin kera
+- 📈 Edellisen treenin painot näkyvät viitteenä per liike
+- 💪 Treenattavat lihakset näkyvät jokaisella liikekortilla
 - ☁️ iCloud-varmuuskopiointi (lataa/palauta JSON-tiedosto)
 - 💾 Kaikki data tallennetaan vain omalle puhelimellesi (localStorage)
 - 🌐 Toimii täysin offline-tilassa – ei vaadi internetiä
