@@ -630,12 +630,38 @@ function loadData() {
       if (currentWorkout.variant === 'A' || currentWorkout.variant === 'B') {
         workoutVariant = currentWorkout.variant;
       }
+      backfillWeights();
     } else {
       newWorkout();
     }
   } catch(e) {
     newWorkout();
   }
+}
+
+// Back-fill missing weights from history into the current workout (one-time migration).
+function backfillWeights() {
+  if (!currentWorkout) return;
+  const prevWeightsByName = {};
+  for (let wi = workoutHistory.length - 1; wi >= 0; wi--) {
+    workoutHistory[wi].exercises.forEach(function(ex) {
+      if (!prevWeightsByName[ex.name]) {
+        prevWeightsByName[ex.name] = ex.sets;
+      }
+    });
+  }
+  let changed = false;
+  currentWorkout.exercises.forEach(function(ex) {
+    const lastSets = prevWeightsByName[ex.name];
+    if (!lastSets) return;
+    ex.sets.forEach(function(set, si) {
+      if (set.weight === '' && lastSets[si] && lastSets[si].weight) {
+        set.weight = String(lastSets[si].weight);
+        changed = true;
+      }
+    });
+  });
+  if (changed) persist();
 }
 
 function persist() {
@@ -716,14 +742,6 @@ function renderWorkout() {
     const ex       = currentWorkout.exercises[ei];
     const lastSets = prevWeightsByName[def.name];
 
-    // Back-fill weights for workouts already saved with empty weights
-    ex.sets.forEach(function(set, si) {
-      if (set.weight === '' && lastSets && lastSets[si] && lastSets[si].weight) {
-        set.weight = String(lastSets[si].weight);
-        needsWeightPersist = true;
-      }
-    });
-
     // Build previous weights summary
     let prevHtml = '';
     if (lastSets) {
@@ -790,8 +808,6 @@ function renderWorkout() {
 
     container.appendChild(card);
   });
-
-  if (needsWeightPersist) persist();
 
   updateProgress();
 }
@@ -1048,6 +1064,7 @@ function importBackup(evt) {
       if (data.workoutVariant === 'A' || data.workoutVariant === 'B') {
         workoutVariant = data.workoutVariant;
       }
+      backfillWeights();
       persist();
       renderWorkout();
       renderHistory();
