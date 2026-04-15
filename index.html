@@ -405,7 +405,22 @@
       color: var(--muted);
       font-size: 11px;
       font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+    .hist-delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 2px 4px;
+      border-radius: 6px;
+      line-height: 1;
+      opacity: 0.55;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .hist-delete-btn:hover, .hist-delete-btn:active { opacity: 1; background: rgba(224,82,82,0.18); }
     .hist-body { padding: 4px 0; }
     .hist-ex {
       padding: 7px 14px;
@@ -1063,7 +1078,8 @@ function renderHistory() {
   }
 
   var list = workoutHistory.slice().reverse();
-  list.forEach(function(w) {
+  list.forEach(function(w, ri) {
+    var origIdx = workoutHistory.length - 1 - ri;
     var date    = new Date(w.date);
     var dayStr  = fmtDate(date);
     var timeStr = date.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
@@ -1094,11 +1110,22 @@ function renderHistory() {
     item.innerHTML =
       '<div class="hist-date">' +
         '📅 ' + dayStr + vLabel +
-        '<span class="hist-date-right">' + timeStr + '</span>' +
+        '<span class="hist-date-right">' +
+          timeStr +
+          '<button class="hist-delete-btn" onclick="deleteWorkout(' + origIdx + ')" title="Poista treeni" aria-label="Poista treeni">🗑️</button>' +
+        '</span>' +
       '</div>' +
       '<div class="hist-body">' + exHtml + '</div>';
     container.appendChild(item);
   });
+}
+
+function deleteWorkout(idx) {
+  if (!confirm('Poistetaanko tämä treeni historiasta?')) return;
+  workoutHistory.splice(idx, 1);
+  saveState();
+  renderHistory();
+  showToast('🗑️ Treeni poistettu historiasta');
 }
 
 // ─────────────────────────────────────────────
