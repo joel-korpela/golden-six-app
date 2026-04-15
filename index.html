@@ -271,24 +271,64 @@
     }
 
     .check-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      border-radius: 10px;
       border: 2px solid var(--border);
       background: transparent;
-      color: transparent;
-      font-size: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
       flex-shrink: 0;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s, border-color 0.15s;
+      padding: 8px 10px;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .check-btn.checked {
       background: var(--accent);
       border-color: var(--accent);
       color: var(--bg);
+    }
+
+    /* ── Weight adjust buttons ───────────────── */
+    .weight-inp-wrap {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .weight-adj {
+      width: 30px;
+      height: 36px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: var(--blue);
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+    .weight-adj:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── Variant switch button ───────────────── */
+    .variant-switch-btn {
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      vertical-align: middle;
     }
 
     /* ── Bottom action bar ───────────────────── */
@@ -426,7 +466,7 @@
 
   <!-- Header -->
   <div id="header">
-    <h1>🏋️ Golden Six <span id="variant-badge" class="variant-badge">A</span></h1>
+    <h1>🏋️ Golden Six <span id="variant-badge" class="variant-badge">A</span> <button class="variant-switch-btn" onclick="switchVariant()">A↔B</button></h1>
     <div class="subtitle" id="header-date">Arnoldin ohjelma · Fullbody 3×/vk</div>
   </div>
 
@@ -590,12 +630,38 @@ function loadData() {
       if (currentWorkout.variant === 'A' || currentWorkout.variant === 'B') {
         workoutVariant = currentWorkout.variant;
       }
+      backfillWeights();
     } else {
       newWorkout();
     }
   } catch(e) {
     newWorkout();
   }
+}
+
+// Back-fill missing weights from history into the current workout (one-time migration).
+function backfillWeights() {
+  if (!currentWorkout) return;
+  const prevWeightsByName = {};
+  for (let wi = workoutHistory.length - 1; wi >= 0; wi--) {
+    workoutHistory[wi].exercises.forEach(function(ex) {
+      if (!prevWeightsByName[ex.name]) {
+        prevWeightsByName[ex.name] = ex.sets;
+      }
+    });
+  }
+  let changed = false;
+  currentWorkout.exercises.forEach(function(ex) {
+    const lastSets = prevWeightsByName[ex.name];
+    if (!lastSets) return;
+    ex.sets.forEach(function(set, si) {
+      if (set.weight === '' && lastSets[si] && lastSets[si].weight) {
+        set.weight = String(lastSets[si].weight);
+        changed = true;
+      }
+    });
+  });
+  if (changed) persist();
 }
 
 function persist() {
@@ -613,7 +679,7 @@ function newWorkout(keepWeights) {
 
   // Build previous weights per exercise name (search full history, newest first)
   const prevWeightsByName = {};
-  if (keepWeights && workoutHistory.length > 0) {
+  if (workoutHistory.length > 0) {
     for (let wi = workoutHistory.length - 1; wi >= 0; wi--) {
       const hw = workoutHistory[wi];
       hw.exercises.forEach(function(ex) {
@@ -670,6 +736,8 @@ function renderWorkout() {
     }
   }
 
+  let needsWeightPersist = false;
+
   exDefs.forEach(function(def, ei) {
     const ex       = currentWorkout.exercises[ei];
     const lastSets = prevWeightsByName[def.name];
@@ -712,15 +780,21 @@ function renderWorkout() {
         '<div class="set-fields">' +
           '<div class="set-field">' +
             '<span class="set-field-label">Paino kg</span>' +
-            '<input class="set-inp" type="number" inputmode="decimal"' +
-            ' placeholder="' + (wHint || '—') + '"' +
-            ' value="' + set.weight + '"' +
-            (set.done ? ' readonly' : '') +
-            ' onchange="updSet(' + ei + ',' + si + ',\'weight\',this.value)">' +
+            '<div class="weight-inp-wrap">' +
+              '<button class="weight-adj"' + (set.done ? ' disabled' : '') +
+              ' onclick="adjustWeight(' + ei + ',' + si + ',-2.5)">−</button>' +
+              '<input class="set-inp" type="number" inputmode="decimal"' +
+              ' placeholder="' + (wHint || '—') + '"' +
+              ' value="' + set.weight + '"' +
+              (set.done ? ' readonly' : '') +
+              ' onchange="updSet(' + ei + ',' + si + ',\'weight\',this.value)">' +
+              '<button class="weight-adj"' + (set.done ? ' disabled' : '') +
+              ' onclick="adjustWeight(' + ei + ',' + si + ',2.5)">+</button>' +
+            '</div>' +
           '</div>' +
           '<div class="set-field">' +
             '<span class="set-field-label">Toistot</span>' +
-            '<input class="set-inp" type="text" inputmode="numeric"' +
+            '<input class="set-inp reps-inp" type="text" inputmode="numeric"' +
             ' placeholder="' + rHint + '"' +
             ' value="' + set.reps + '"' +
             (set.done ? ' readonly' : '') +
@@ -728,7 +802,7 @@ function renderWorkout() {
           '</div>' +
         '</div>' +
         '<button class="check-btn' + (set.done ? ' checked' : '') + '"' +
-        ' onclick="toggleSet(' + ei + ',' + si + ')">✓</button>';
+        ' onclick="toggleSet(' + ei + ',' + si + ')">' + (set.done ? '✓ Tehty' : '✓ Sarja tehty') + '</button>';
       card.appendChild(row);
     });
 
@@ -757,20 +831,59 @@ function updSet(ei, si, field, val) {
   persist();
 }
 
+function adjustWeight(ei, si, delta) {
+  const set = currentWorkout.exercises[ei].sets[si];
+  if (set.done) return;
+  const row = document.getElementById('row-' + ei + '-' + si);
+  const inp = row ? row.querySelector('.set-inp') : null;
+  // Use visible input value so display-defaulted values are respected
+  const current = inp ? (parseFloat(inp.value) || 0) : (parseFloat(set.weight) || 0);
+  const next = Math.max(0, Math.round((current + delta) * 10) / 10);
+  const nextStr = next === 0 ? '' : String(next);
+  set.weight = nextStr;
+  persist();
+  if (inp) inp.value = nextStr;
+}
+
+function switchVariant() {
+  const next = workoutVariant === 'A' ? 'B' : 'A';
+  if (!confirm('Vaihdetaan treeni ' + next + '?\nNykyiset rastit nollataan.')) return;
+  workoutVariant = next;
+  newWorkout(false);
+  stopTimer();
+  renderWorkout();
+  showToast('🔄 Vaihdettu treeni ' + workoutVariant);
+}
+
 function toggleSet(ei, si) {
   const set = currentWorkout.exercises[ei].sets[si];
+  const row = document.getElementById('row-' + ei + '-' + si);
+
+  // Auto-fill reps from placeholder when marking as done and reps is empty
+  if (!set.done && !set.reps && row) {
+    const repsInp = row.querySelector('.reps-inp');
+    if (repsInp && repsInp.placeholder) {
+      set.reps = repsInp.placeholder;
+    }
+  }
+
   set.done = !set.done;
   persist();
 
   // Update row DOM
-  const row = document.getElementById('row-' + ei + '-' + si);
   if (!row) return;
   row.className = 'set-row' + (set.done ? ' done' : '');
   row.querySelectorAll('.set-inp').forEach(function(inp) {
     if (set.done) inp.setAttribute('readonly', ''); else inp.removeAttribute('readonly');
   });
+  // Sync reps display (may have been auto-filled)
+  const repsInp = row.querySelector('.reps-inp');
+  if (repsInp) repsInp.value = set.reps;
+  // Enable/disable weight adjust buttons
+  row.querySelectorAll('.weight-adj').forEach(function(b) { b.disabled = set.done; });
   const btn = row.querySelector('.check-btn');
   btn.className = 'check-btn' + (set.done ? ' checked' : '');
+  btn.textContent = set.done ? '✓ Tehty' : '✓ Sarja tehty';
 
   updateProgress();
 
@@ -951,6 +1064,7 @@ function importBackup(evt) {
       if (data.workoutVariant === 'A' || data.workoutVariant === 'B') {
         workoutVariant = data.workoutVariant;
       }
+      backfillWeights();
       persist();
       renderWorkout();
       renderHistory();
