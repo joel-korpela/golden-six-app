@@ -1135,10 +1135,32 @@ function renderHistory() {
   });
 }
 
+function syncCurrentWeightsFromHistory() {
+  if (!currentWorkout) return;
+  const prevWeightsByName = {};
+  for (let wi = workoutHistory.length - 1; wi >= 0; wi--) {
+    workoutHistory[wi].exercises.forEach(function(ex) {
+      if (!prevWeightsByName[ex.name]) {
+        prevWeightsByName[ex.name] = ex.sets.map(function(s) { return s.weight || ''; });
+      }
+    });
+  }
+  currentWorkout.exercises.forEach(function(ex) {
+    const lastWeights = prevWeightsByName[ex.name];
+    ex.sets.forEach(function(set, si) {
+      if (!set.done) {
+        set.weight = (lastWeights && lastWeights[si] != null) ? lastWeights[si] : '';
+      }
+    });
+  });
+  persist();
+}
+
 function deleteWorkout(idx) {
   if (!confirm('Poistetaanko tämä treeni historiasta?')) return;
   workoutHistory.splice(idx, 1);
-  persist();
+  syncCurrentWeightsFromHistory();
+  renderWorkout();
   renderHistory();
   showToast('🗑️ Treeni poistettu historiasta');
 }
@@ -1147,7 +1169,8 @@ function clearAllHistory() {
   if (!workoutHistory.length) { showToast('📭 Historia on jo tyhjä'); return; }
   if (!confirm('Tyhjennetäänkö koko treenihistoria?\n\nTätä ei voi peruuttaa.')) return;
   workoutHistory = [];
-  persist();
+  syncCurrentWeightsFromHistory();
+  renderWorkout();
   renderHistory();
   showToast('🗑️ Historia tyhjennetty');
 }
