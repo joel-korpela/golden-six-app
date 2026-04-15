@@ -7,7 +7,7 @@ Arnoldin Golden Six -treeniohjelma iPhonelle. Toimii täysin offline-tilassa ja 
 ## 📱 Asennus iPhoneen (2 min)
 
 1. **Avaa Safari** iPhonessa *(ei Chrome tai Firefox!)*
-2. Mene appin osoitteeseen
+2. Mene appin osoitteeseen: **https://joel-korpela.github.io/golden-six-app/**
 3. Paina **Jaa-painike** (neliö, jossa ylöspäin osoittava nuoli) ↑
 4. Selaa alaspäin ja valitse **"Lisää Koti-valikkoon"**
 5. Paina **"Lisää"** oikeassa yläkulmassa
