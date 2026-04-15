@@ -421,6 +421,18 @@
       transition: opacity 0.15s, background 0.15s;
     }
     .hist-delete-btn:hover, .hist-delete-btn:active { opacity: 1; background: rgba(224,82,82,0.18); }
+    .hist-clear-btn {
+      background: rgba(224,82,82,0.12);
+      border: 1px solid rgba(224,82,82,0.35);
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .hist-clear-btn:hover, .hist-clear-btn:active { background: rgba(224,82,82,0.25); }
     .hist-body { padding: 4px 0; }
     .hist-ex {
       padding: 7px 14px;
@@ -531,6 +543,9 @@
 
     <!-- HISTORY TAB -->
     <div id="tab-history" class="section">
+      <div id="history-actions" style="padding:12px 12px 0;display:flex;justify-content:flex-end;">
+        <button class="hist-clear-btn" onclick="clearAllHistory()">🗑️ Tyhjennä historia</button>
+      </div>
       <div id="history"></div>
     </div>
 
@@ -1123,9 +1138,18 @@ function renderHistory() {
 function deleteWorkout(idx) {
   if (!confirm('Poistetaanko tämä treeni historiasta?')) return;
   workoutHistory.splice(idx, 1);
-  saveState();
+  persist();
   renderHistory();
   showToast('🗑️ Treeni poistettu historiasta');
+}
+
+function clearAllHistory() {
+  if (!workoutHistory.length) { showToast('📭 Historia on jo tyhjä'); return; }
+  if (!confirm('Tyhjennetäänkö koko treenihistoria?\n\nTätä ei voi peruuttaa.')) return;
+  workoutHistory = [];
+  persist();
+  renderHistory();
+  showToast('🗑️ Historia tyhjennetty');
 }
 
 // ─────────────────────────────────────────────
