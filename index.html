@@ -243,6 +243,9 @@
       gap: 2px;
       flex: 1;
     }
+    .set-field.reps-field {
+      flex: 0 0 70px;
+    }
     .set-field-label {
       font-size: 10px;
       color: #555566;
@@ -329,6 +332,21 @@
       cursor: pointer;
       letter-spacing: 0.3px;
       vertical-align: middle;
+    }
+
+    /* ── Mark all done button ────────────────── */
+    .mark-all-btn {
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* ── Bottom action bar ───────────────────── */
@@ -755,8 +773,13 @@ function renderWorkout() {
     const musclesHtml = def.muscles ? '<div class="ex-muscles">💪 ' + def.muscles + '</div>' : '';
     const repsLabel   = def.reps === 'max' ? 'max toistoa' : (def.reps + ' toistoa');
 
+    const allDone = ex.sets.every(function(s) { return s.done; });
+    const markAllBtnHtml = allDone ? '' :
+      '<button class="mark-all-btn" onclick="markAllDone(' + ei + ')">✓ Kaikki tehty</button>';
+
     const card = document.createElement('div');
     card.className = 'ex-card';
+    card.id = 'card-' + ei;
     card.innerHTML =
       '<div class="ex-head">' +
         '<div>' +
@@ -764,7 +787,10 @@ function renderWorkout() {
           '<div class="ex-meta">' + def.sets + ' sarjaa × ' + repsLabel + '</div>' +
           musclesHtml +
         '</div>' +
-        prevHtml +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">' +
+          (prevHtml ? prevHtml : '') +
+          markAllBtnHtml +
+        '</div>' +
       '</div>';
 
     ex.sets.forEach(function(set, si) {
@@ -792,7 +818,7 @@ function renderWorkout() {
               ' onclick="adjustWeight(' + ei + ',' + si + ',2.5)">+</button>' +
             '</div>' +
           '</div>' +
-          '<div class="set-field">' +
+          '<div class="set-field reps-field">' +
             '<span class="set-field-label">Toistot</span>' +
             '<input class="set-inp reps-inp" type="text" inputmode="numeric"' +
             ' placeholder="' + rHint + '"' +
@@ -887,9 +913,59 @@ function toggleSet(ei, si) {
 
   updateProgress();
 
+  // Update visibility of the "mark all done" button for this exercise
+  const card = document.getElementById('card-' + ei);
+  if (card) {
+    const allNowDone = currentWorkout.exercises[ei].sets.every(function(s) { return s.done; });
+    const markBtn = card.querySelector('.mark-all-btn');
+    if (allNowDone && markBtn) {
+      markBtn.remove();
+    } else if (!allNowDone && !markBtn) {
+      const markAllBtn = document.createElement('button');
+      markAllBtn.className = 'mark-all-btn';
+      markAllBtn.setAttribute('onclick', 'markAllDone(' + ei + ')');
+      markAllBtn.textContent = '✓ Kaikki tehty';
+      card.querySelector('.ex-head > div:last-child').appendChild(markAllBtn);
+    }
+  }
+
   if (set.done) {
     startTimer(activeExercises()[ei].rest);
   }
+}
+
+function markAllDone(ei) {
+  const ex = currentWorkout.exercises[ei];
+  ex.sets.forEach(function(set, si) {
+    if (set.done) return;
+    // Auto-fill reps from placeholder if empty
+    const row = document.getElementById('row-' + ei + '-' + si);
+    if (!set.reps && row) {
+      const repsInp = row.querySelector('.reps-inp');
+      if (repsInp && repsInp.placeholder) {
+        set.reps = repsInp.placeholder;
+      }
+    }
+    set.done = true;
+    // Update row DOM
+    if (row) {
+      row.className = 'set-row done';
+      row.querySelectorAll('.set-inp').forEach(function(inp) { inp.setAttribute('readonly', ''); });
+      const repsInp = row.querySelector('.reps-inp');
+      if (repsInp) repsInp.value = set.reps;
+      row.querySelectorAll('.weight-adj').forEach(function(b) { b.disabled = true; });
+      const btn = row.querySelector('.check-btn');
+      if (btn) { btn.className = 'check-btn checked'; btn.textContent = '✓ Tehty'; }
+    }
+  });
+  persist();
+  // Hide the "mark all done" button since all sets are now done
+  const card = document.getElementById('card-' + ei);
+  if (card) {
+    const markBtn = card.querySelector('.mark-all-btn');
+    if (markBtn) markBtn.remove();
+  }
+  updateProgress();
 }
 
 // ─────────────────────────────────────────────
