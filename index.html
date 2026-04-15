@@ -581,6 +581,18 @@
 
 <script>
 // ─────────────────────────────────────────────
+//  HTML ESCAPING HELPER
+// ─────────────────────────────────────────────
+function esc(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ─────────────────────────────────────────────
 //  EXERCISE DEFINITIONS – Golden Six 2020
 //  Exercises 1, 3 and 5 alternate A/B each session
 // ─────────────────────────────────────────────
@@ -793,7 +805,7 @@ function renderWorkout() {
     // Build previous weights summary
     let prevHtml = '';
     if (lastSets) {
-      const pw = lastSets.filter(function(s) { return s.weight; }).map(function(s) { return s.weight + 'kg'; });
+      const pw = lastSets.filter(function(s) { return s.weight; }).map(function(s) { return esc(s.weight) + 'kg'; });
       if (pw.length) {
         prevHtml = '<div class="ex-prev">📊 Edellinen:<br>' + pw.join(' / ') + '</div>';
       }
@@ -825,8 +837,8 @@ function renderWorkout() {
 
     ex.sets.forEach(function(set, si) {
       const prevSet = lastSets && lastSets[si];
-      const wHint   = prevSet && prevSet.weight ? prevSet.weight + 'kg' : '';
-      const rHint   = prevSet && prevSet.reps   ? prevSet.reps + '' : (def.reps === 'max' ? 'max' : def.reps + '');
+      const wHint   = prevSet && prevSet.weight ? esc(prevSet.weight) + 'kg' : '';
+      const rHint   = prevSet && prevSet.reps   ? esc(prevSet.reps) + '' : (def.reps === 'max' ? 'max' : def.reps + '');
 
       const row = document.createElement('div');
       row.className = 'set-row' + (set.done ? ' done' : '');
@@ -841,7 +853,7 @@ function renderWorkout() {
               ' onclick="adjustWeight(' + ei + ',' + si + ',-2.5)">−</button>' +
               '<input class="set-inp" type="number" inputmode="decimal"' +
               ' placeholder="' + (wHint || '—') + '"' +
-              ' value="' + set.weight + '"' +
+              ' value="' + esc(set.weight) + '"' +
               (set.done ? ' readonly' : '') +
               ' onchange="updSet(' + ei + ',' + si + ',\'weight\',this.value)">' +
               '<button class="weight-adj"' + (set.done ? ' disabled' : '') +
@@ -852,7 +864,7 @@ function renderWorkout() {
             '<span class="set-field-label">Toistot</span>' +
             '<input class="set-inp reps-inp" type="text" inputmode="numeric"' +
             ' placeholder="' + rHint + '"' +
-            ' value="' + set.reps + '"' +
+            ' value="' + esc(set.reps) + '"' +
             (set.done ? ' readonly' : '') +
             ' onchange="updSet(' + ei + ',' + si + ',\'reps\',this.value)">' +
           '</div>' +
@@ -1098,7 +1110,7 @@ function renderHistory() {
     var date    = new Date(w.date);
     var dayStr  = fmtDate(date);
     var timeStr = date.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
-    var vLabel  = w.variant ? ' · Treeni ' + w.variant : '';
+    var vLabel  = w.variant ? ' · Treeni ' + esc(w.variant) : '';
 
     var exHtml = '';
     w.exercises.forEach(function(ex) {
@@ -1107,13 +1119,13 @@ function renderHistory() {
       var def = getExDef(ex.name);
       var setStrs = doneSets.map(function(s) {
         var parts = [];
-        if (s.weight) parts.push(s.weight + ' kg');
-        if (s.reps)   parts.push(s.reps + ' toistoa');
+        if (s.weight) parts.push(esc(s.weight) + ' kg');
+        if (s.reps)   parts.push(esc(s.reps) + ' toistoa');
         return parts.join(' × ') || '✓';
       });
       exHtml +=
         '<div class="hist-ex">' +
-          '<div class="hist-ex-name">' + def.emoji + ' ' + ex.name + '</div>' +
+          '<div class="hist-ex-name">' + def.emoji + ' ' + esc(ex.name) + '</div>' +
           '<div class="hist-ex-sets">' + doneSets.length + ' sarjaa · ' + setStrs.join(', ') + '</div>' +
         '</div>';
     });
